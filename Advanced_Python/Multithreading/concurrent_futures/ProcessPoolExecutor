@@ -1,0 +1,27 @@
+import numpy as np
+import pandas as pd
+import concurrent.futures
+
+
+def sqr(series):
+    for i in range(series.shape[0]):
+        series[i] = series[i]*series[i]
+    return series
+
+def multi_process_sqr(func, iterable):
+    completed = []
+    with concurrent.futures.ProcessPoolExecutor(6) as pexcr:
+        futures = [pexcr.submit(func, arr) for arr in iterable]
+        for f in concurrent.futures.as_completed(futures):
+            completed.append(f.result())
+    
+    return completed
+
+if __name__ == '__main__':
+    
+    arr = np.array([i for i in range(100)])
+    arsplt = np.array_split(arr, 10)
+    
+    completed = multi_process_sqr(sqr, arsplt)
+    
+    print(completed)
